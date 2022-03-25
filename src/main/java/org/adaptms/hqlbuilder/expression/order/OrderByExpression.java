@@ -1,8 +1,5 @@
 package org.adaptms.hqlbuilder.expression.order;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
 import org.adaptms.hqlbuilder.expression.AbstractExpression;
 import org.adaptms.hqlbuilder.expression.ExpressionType;
 
@@ -13,11 +10,14 @@ import java.util.Locale;
  */
 public class OrderByExpression extends AbstractExpression {
 
-    @Getter( AccessLevel.PROTECTED ) private final String path;
-    @Getter( AccessLevel.PROTECTED ) private final QueryOrderDirection direction;
+    private final String path;
+    private final QueryOrderDirection direction;
 
-    public OrderByExpression( @NonNull String path, @NonNull QueryOrderDirection direction ) {
+    public OrderByExpression( String path, QueryOrderDirection direction ) {
         super( ExpressionType.ORDER_BY );
+
+        if ( null == path || path.isEmpty() ) throw new IllegalArgumentException( "Path may not be empty." );
+        if ( null == direction ) throw new IllegalArgumentException( "QueryOrderDirection may not be null." );
 
         this.path = path;
         this.direction = direction;
@@ -26,5 +26,13 @@ public class OrderByExpression extends AbstractExpression {
     @Override
     public String build() {
         return getPath() + " " + getDirection().name().toLowerCase( Locale.ROOT );
+    }
+
+    protected String getPath() {
+        return path;
+    }
+
+    protected QueryOrderDirection getDirection() {
+        return direction;
     }
 }

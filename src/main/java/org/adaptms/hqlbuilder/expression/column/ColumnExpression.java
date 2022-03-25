@@ -1,6 +1,5 @@
 package org.adaptms.hqlbuilder.expression.column;
 
-import lombok.Getter;
 import org.adaptms.hqlbuilder.expression.AbstractExpression;
 import org.adaptms.hqlbuilder.expression.ExpressionType;
 
@@ -11,11 +10,15 @@ import java.text.MessageFormat;
  */
 public class ColumnExpression extends AbstractExpression {
 
-    @Getter private final String path;
-    @Getter private final ColumnExpressionType columnExpressionType;
+    private final String path;
+    private final ColumnExpressionType columnExpressionType;
 
     public ColumnExpression( String path, ColumnExpressionType type ) {
         super( ExpressionType.COLUMN );
+
+        if ( null == path || path.isEmpty() ) throw new IllegalArgumentException( "Path may not be empty." );
+        if ( null == type ) throw new IllegalArgumentException( "ColumnExpressionType may not be empty." );
+
         this.path = path;
         this.columnExpressionType = type;
     }
@@ -23,5 +26,13 @@ public class ColumnExpression extends AbstractExpression {
     @Override
     public String build() {
         return MessageFormat.format( getColumnExpressionType().getQuery(), getPath() );
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public ColumnExpressionType getColumnExpressionType() {
+        return columnExpressionType;
     }
 }

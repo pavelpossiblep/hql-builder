@@ -1,7 +1,5 @@
 package org.adaptms.hqlbuilder.expression.where;
 
-import lombok.Getter;
-import lombok.NonNull;
 import org.adaptms.hqlbuilder.builder.HQLBuilder;
 import org.adaptms.hqlbuilder.expression.AbstractExpression;
 import org.adaptms.hqlbuilder.expression.ExpressionType;
@@ -11,10 +9,14 @@ import org.adaptms.hqlbuilder.expression.ExpressionType;
  */
 public class WhereExpression extends AbstractExpression {
 
-    @Getter private final CommonWhereExpression expression;
+    private final CommonWhereExpression expression;
 
-    public WhereExpression( @NonNull CommonWhereExpression expression, @NonNull HQLBuilder builder ) {
+    public WhereExpression( CommonWhereExpression expression, HQLBuilder builder ) {
         super( ExpressionType.WHERE );
+
+        if ( null == expression ) throw new IllegalArgumentException( "CommonWhereExpression may not be null." );
+        if ( null == builder ) throw new IllegalArgumentException( "HQLBuilder may not be null." );
+
         this.expression = expression;
         this.expression.init( builder );
     }
@@ -22,5 +24,9 @@ public class WhereExpression extends AbstractExpression {
     @Override
     public String build() {
         return getExpression().build();
+    }
+
+    public CommonWhereExpression getExpression() {
+        return expression;
     }
 }

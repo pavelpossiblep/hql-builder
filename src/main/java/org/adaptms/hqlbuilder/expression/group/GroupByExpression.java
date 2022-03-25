@@ -1,7 +1,5 @@
 package org.adaptms.hqlbuilder.expression.group;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.adaptms.hqlbuilder.expression.AbstractExpression;
 import org.adaptms.hqlbuilder.expression.ExpressionType;
 
@@ -10,16 +8,22 @@ import org.adaptms.hqlbuilder.expression.ExpressionType;
  */
 public class GroupByExpression extends AbstractExpression {
 
-    @Getter( AccessLevel.PROTECTED ) private final String path;
+    private final String path;
 
     public GroupByExpression( String path ) {
         super( ExpressionType.GROUP_BY );
+
+        if ( null == path || path.isEmpty() ) throw new IllegalArgumentException( "Path may not be empty." );
 
         this.path = path;
     }
 
     @Override
     public String build() {
+        return path;
+    }
+
+    protected String getPath() {
         return path;
     }
 }

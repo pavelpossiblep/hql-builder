@@ -1,8 +1,5 @@
 package org.adaptms.hqlbuilder.expression.join;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
 import org.adaptms.hqlbuilder.builder.HQLBuilder;
 import org.adaptms.hqlbuilder.expression.AbstractExpression;
 import org.adaptms.hqlbuilder.expression.ExpressionType;
@@ -15,13 +12,16 @@ import java.util.Locale;
  */
 public class JoinExpression extends AbstractExpression {
 
-    @Getter( AccessLevel.PROTECTED ) private final JoinType joinType;
-    @Getter( AccessLevel.PROTECTED ) private final String joinEntityClass;
-    @Getter( AccessLevel.PROTECTED ) private final String joinEntityAlias;
-    @Getter( AccessLevel.PROTECTED ) private final CommonWhereExpression withExpression;
+    private final JoinType joinType;
+    private final String joinEntityClass;
+    private final String joinEntityAlias;
+    private final CommonWhereExpression withExpression;
 
-    public JoinExpression( @NonNull JoinType type, @NonNull String joinEntityClass, String joinEntityAlias, CommonWhereExpression withExpression ) {
+    public JoinExpression( JoinType type, String joinEntityClass, String joinEntityAlias, CommonWhereExpression withExpression ) {
         super( ExpressionType.JOIN );
+
+        if ( null == joinEntityClass || joinEntityClass.isEmpty() ) throw new IllegalArgumentException( "Join entity class may not be empty." );
+
         this.joinType = type;
         this.joinEntityClass = joinEntityClass;
         this.joinEntityAlias = joinEntityAlias;
@@ -36,5 +36,21 @@ public class JoinExpression extends AbstractExpression {
     public String build() {
         return getJoinType().name().toLowerCase( Locale.ROOT ) + " join " + getJoinEntityClass() + " " + getJoinEntityAlias()
                 + " with " + getWithExpression().build();
+    }
+
+    protected JoinType getJoinType() {
+        return joinType;
+    }
+
+    protected String getJoinEntityClass() {
+        return joinEntityClass;
+    }
+
+    protected String getJoinEntityAlias() {
+        return joinEntityAlias;
+    }
+
+    protected CommonWhereExpression getWithExpression() {
+        return withExpression;
     }
 }

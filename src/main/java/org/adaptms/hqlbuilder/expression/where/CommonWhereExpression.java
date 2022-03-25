@@ -1,7 +1,5 @@
 package org.adaptms.hqlbuilder.expression.where;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.adaptms.hqlbuilder.IBuildable;
 import org.adaptms.hqlbuilder.builder.HQLBuilder;
 import org.adaptms.hqlbuilder.expression.AbstractExpression;
@@ -16,8 +14,8 @@ import java.util.Collection;
  */
 public class CommonWhereExpression extends AbstractExpression {
 
-    @Getter( AccessLevel.PROTECTED ) private final Object[] arguments;
-    @Getter( AccessLevel.PROTECTED ) private String[] querySubstitutes;
+    private final Object[] arguments;
+    private String[] querySubstitutes;
 
     public CommonWhereExpression( ExpressionType type, Object... arguments ) {
         super( type );
@@ -54,4 +52,11 @@ public class CommonWhereExpression extends AbstractExpression {
         }
     }
 
+    protected Object[] getArguments() {
+        return arguments;
+    }
+
+    protected String[] getQuerySubstitutes() {
+        return querySubstitutes;
+    }
 }

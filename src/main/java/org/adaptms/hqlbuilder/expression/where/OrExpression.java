@@ -1,7 +1,5 @@
 package org.adaptms.hqlbuilder.expression.where;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.adaptms.hqlbuilder.builder.HQLBuilder;
 import org.adaptms.hqlbuilder.expression.AbstractExpression;
 import org.adaptms.hqlbuilder.expression.ExpressionType;
@@ -14,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public class OrExpression extends CommonWhereExpression {
 
-    @Getter( AccessLevel.PROTECTED ) private final CommonWhereExpression[] expressions;
+    private final CommonWhereExpression[] expressions;
 
     public OrExpression( CommonWhereExpression... expressions ) {
         super( ExpressionType.OR );
@@ -35,5 +33,9 @@ public class OrExpression extends CommonWhereExpression {
     @Override
     public String build() {
         return "(" + Arrays.stream( getExpressions() ).map( AbstractExpression::build ).collect( Collectors.joining( " or " ) ) + ")";
+    }
+
+    protected CommonWhereExpression[] getExpressions() {
+        return expressions;
     }
 }

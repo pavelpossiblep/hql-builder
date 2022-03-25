@@ -1,6 +1,5 @@
 package org.adaptms.hqlbuilder.builder;
 
-import lombok.*;
 import org.adaptms.hqlbuilder.IBuildable;
 import org.adaptms.hqlbuilder.expression.AbstractExpression;
 import org.adaptms.hqlbuilder.expression.column.ColumnExpression;
@@ -22,31 +21,32 @@ import java.util.stream.Collectors;
 /**
  * @author ppolyakov at 24.03.2022 16:07
  */
-@NoArgsConstructor
 public class HQLBuilder implements IBuildable {
     private static final String CLASS_ERROR_MESSAGE_START = "Class \"";
 
-    @Getter @Setter( AccessLevel.PROTECTED ) private String internalUUID; // if query without alias
+    private String internalUUID; // if query without alias
 
-    @Getter @Setter( AccessLevel.PROTECTED ) private String rootEntityClass;
-    @Getter @Setter( AccessLevel.PROTECTED ) private String rootEntityAlias;
-    @Getter @Setter( AccessLevel.PROTECTED ) private BuilderMode mode;
+    private String rootEntityClass;
+    private String rootEntityAlias;
+    private BuilderMode mode;
 
-    @Getter( AccessLevel.PROTECTED ) @Setter( AccessLevel.PROTECTED ) private Set<String> uniqueColumns;
-    @Getter( AccessLevel.PROTECTED ) @Setter( AccessLevel.PROTECTED ) private List<ColumnExpression> columns;
-    @Getter( AccessLevel.PROTECTED ) @Setter( AccessLevel.PROTECTED ) private List<JoinExpression> joinExpressions;
-    @Getter( AccessLevel.PROTECTED ) @Setter( AccessLevel.PROTECTED ) private List<SetExpression> setExpressions;
-    @Getter( AccessLevel.PROTECTED ) @Setter( AccessLevel.PROTECTED ) private List<WhereExpression> whereExpressions;
-    @Getter( AccessLevel.PROTECTED ) @Setter( AccessLevel.PROTECTED ) private List<OrderByExpression> orderByExpressions;
-    @Getter( AccessLevel.PROTECTED ) @Setter( AccessLevel.PROTECTED ) private List<GroupByExpression> groupByExpressions;
+    private List<ColumnExpression> columns;
+    private List<JoinExpression> joinExpressions;
+    private List<SetExpression> setExpressions;
+    private List<WhereExpression> whereExpressions;
+    private List<OrderByExpression> orderByExpressions;
+    private List<GroupByExpression> groupByExpressions;
 
-    @Getter @Setter( AccessLevel.PROTECTED ) private Map<String, Object> variables = new HashMap<>();
+    private Map<String, Object> variables = new HashMap<>();
 
-    public HQLBuilder( @NonNull Class<?> rootEntityClass, String rootEntityAlias, @NonNull BuilderMode mode ) {
+    public HQLBuilder() {
+    }
+
+    public HQLBuilder( Class<?> rootEntityClass, String rootEntityAlias, BuilderMode mode ) {
         init( rootEntityClass, rootEntityAlias, mode );
     }
 
-    public HQLBuilder( @NonNull String rootEntityClass, String rootEntityAlias, @NonNull BuilderMode mode ) {
+    public HQLBuilder( String rootEntityClass, String rootEntityAlias, BuilderMode mode ) {
         try {
             init( Class.forName( rootEntityClass ), rootEntityAlias, mode );
         } catch ( ClassNotFoundException cnfe ) {
@@ -54,7 +54,7 @@ public class HQLBuilder implements IBuildable {
         }
     }
 
-    private void init( @NonNull Class<?> rootEntityClass, String rootEntityAlias, @NonNull BuilderMode mode ) {
+    private void init( Class<?> rootEntityClass, String rootEntityAlias, BuilderMode mode ) {
         if ( !rootEntityClass.isAnnotationPresent( Entity.class ) )
             throw new IllegalStateException( CLASS_ERROR_MESSAGE_START + rootEntityClass.getCanonicalName() + "\" is not an Entity. You need to annotate it with javax.persistence.Entity." );
 
@@ -104,9 +104,7 @@ public class HQLBuilder implements IBuildable {
      * @return current builder
      */
     public HQLBuilder column( String property, ColumnExpressionType expressionType ) {
-        if ( uniqueColumns == null ) uniqueColumns = new HashSet<>();
         if ( columns == null ) columns = new ArrayList<>();
-        uniqueColumns.add( property );
         columns.add( new ColumnExpression( property, expressionType ) );
         return this;
     }
@@ -119,7 +117,7 @@ public class HQLBuilder implements IBuildable {
      * @param withExpression expression to join on
      * @return current builder
      */
-    public HQLBuilder join( @NonNull JoinType type, @NonNull Class<?> joinEntityClass, String joinEntityAlias, CommonWhereExpression withExpression ) {
+    public HQLBuilder join( JoinType type, Class<?> joinEntityClass, String joinEntityAlias, CommonWhereExpression withExpression ) {
         addJoin( type, joinEntityClass, joinEntityAlias, withExpression );
         return this;
     }
@@ -133,7 +131,7 @@ public class HQLBuilder implements IBuildable {
      * @return current builder
      * @throws IllegalStateException if class doesn't exist
      */
-    public HQLBuilder join( @NonNull JoinType type, @NonNull String joinEntityClass, String joinEntityAlias, CommonWhereExpression withExpression ) {
+    public HQLBuilder join( JoinType type, String joinEntityClass, String joinEntityAlias, CommonWhereExpression withExpression ) {
         try {
             addJoin( type, Class.forName( joinEntityClass ), joinEntityAlias, withExpression );
         } catch ( ClassNotFoundException cnfe ) {
@@ -149,7 +147,7 @@ public class HQLBuilder implements IBuildable {
      * @param joinEntityAlias alias of joined entity
      * @param withExpression expression to join on
      */
-    protected void addJoin( @NonNull JoinType type, @NonNull Class<?> joinEntityClass, String joinEntityAlias, CommonWhereExpression withExpression ) {
+    protected void addJoin( JoinType type, Class<?> joinEntityClass, String joinEntityAlias, CommonWhereExpression withExpression ) {
         if ( joinExpressions == null ) joinExpressions = new ArrayList<>();
         JoinExpression expression = new JoinExpression( type, joinEntityClass.getCanonicalName(), joinEntityAlias, withExpression );
         expression.init( this );
@@ -188,10 +186,7 @@ public class HQLBuilder implements IBuildable {
      */
     public HQLBuilder groupBy( EntityPath path ) {
         if ( groupByExpressions == null ) groupByExpressions = new ArrayList<>();
-        String pathStr = path.getPath();
-        if ( !uniqueColumns.contains( pathStr ) )
-            throw new IllegalArgumentException( "You must add a column for a \"" + pathStr + "\" GROUP BY clause." );
-        groupByExpressions.add( new GroupByExpression( pathStr ) );
+        groupByExpressions.add( new GroupByExpression( path.getPath() ) );
         return this;
     }
 
@@ -289,39 +284,38 @@ public class HQLBuilder implements IBuildable {
      * Remove all column definitions (e.g. for counting)
      */
     public void clearColumns() {
-        uniqueColumns = null;
         columns = null;
     }
 
-    public static HQLBuilder select( @NonNull Class<?> rootEntityClass, @NonNull String rootEntityAlias ) {
+    public static HQLBuilder select( Class<?> rootEntityClass, String rootEntityAlias ) {
         return new HQLBuilder( rootEntityClass, rootEntityAlias, BuilderMode.SELECT );
     }
 
-    public static HQLBuilder select( @NonNull String rootEntityClass, @NonNull String rootEntityAlias ) {
+    public static HQLBuilder select( String rootEntityClass, String rootEntityAlias ) {
         return new HQLBuilder( rootEntityClass, rootEntityAlias, BuilderMode.SELECT );
     }
 
-    public static HQLBuilder insert( @NonNull Class<?> rootEntityClass ) {
+    public static HQLBuilder insert( Class<?> rootEntityClass ) {
         throw new UnsupportedOperationException( "Due to HQL limitations, INSERT queries are not implemented." );
     }
 
-    public static HQLBuilder insert( @NonNull String rootEntityClass ) {
+    public static HQLBuilder insert( String rootEntityClass ) {
         throw new UnsupportedOperationException( "Due to HQL limitations, INSERT queries are not implemented." );
     }
 
-    public static HQLBuilder update( @NonNull Class<?> rootEntityClass ) {
+    public static HQLBuilder update( Class<?> rootEntityClass ) {
         return new HQLBuilder( rootEntityClass, null, BuilderMode.UPDATE );
     }
 
-    public static HQLBuilder update( @NonNull String rootEntityClass ) {
+    public static HQLBuilder update( String rootEntityClass ) {
         return new HQLBuilder( rootEntityClass, null, BuilderMode.UPDATE );
     }
 
-    public static HQLBuilder delete( @NonNull Class<?> rootEntityClass ) {
+    public static HQLBuilder delete( Class<?> rootEntityClass ) {
         return new HQLBuilder( rootEntityClass, null, BuilderMode.DELETE );
     }
 
-    public static HQLBuilder delete( @NonNull String rootEntityClass ) {
+    public static HQLBuilder delete( String rootEntityClass ) {
         return new HQLBuilder( rootEntityClass, null, BuilderMode.DELETE );
     }
 
@@ -331,7 +325,6 @@ public class HQLBuilder implements IBuildable {
         builder.setRootEntityClass( that.getRootEntityClass() );
         builder.setRootEntityAlias( that.getRootEntityAlias() );
 
-        builder.setUniqueColumns( that.getUniqueColumns() );
         builder.setColumns( that.getColumns() );
         builder.setJoinExpressions( that.getJoinExpressions() );
         builder.setSetExpressions( that.getSetExpressions() );
@@ -342,5 +335,93 @@ public class HQLBuilder implements IBuildable {
         builder.setVariables( that.getVariables() );
 
         return builder;
+    }
+
+    public String getInternalUUID() {
+        return internalUUID;
+    }
+
+    public void setInternalUUID( String internalUUID ) {
+        this.internalUUID = internalUUID;
+    }
+
+    public String getRootEntityClass() {
+        return rootEntityClass;
+    }
+
+    public void setRootEntityClass( String rootEntityClass ) {
+        this.rootEntityClass = rootEntityClass;
+    }
+
+    public String getRootEntityAlias() {
+        return rootEntityAlias;
+    }
+
+    public void setRootEntityAlias( String rootEntityAlias ) {
+        this.rootEntityAlias = rootEntityAlias;
+    }
+
+    public BuilderMode getMode() {
+        return mode;
+    }
+
+    public void setMode( BuilderMode mode ) {
+        this.mode = mode;
+    }
+
+    public List<ColumnExpression> getColumns() {
+        return columns;
+    }
+
+    public void setColumns( List<ColumnExpression> columns ) {
+        this.columns = columns;
+    }
+
+    public List<JoinExpression> getJoinExpressions() {
+        return joinExpressions;
+    }
+
+    public void setJoinExpressions( List<JoinExpression> joinExpressions ) {
+        this.joinExpressions = joinExpressions;
+    }
+
+    public List<SetExpression> getSetExpressions() {
+        return setExpressions;
+    }
+
+    public void setSetExpressions( List<SetExpression> setExpressions ) {
+        this.setExpressions = setExpressions;
+    }
+
+    public List<WhereExpression> getWhereExpressions() {
+        return whereExpressions;
+    }
+
+    public void setWhereExpressions( List<WhereExpression> whereExpressions ) {
+        this.whereExpressions = whereExpressions;
+    }
+
+    public List<OrderByExpression> getOrderByExpressions() {
+        return orderByExpressions;
+    }
+
+    public void setOrderByExpressions( List<OrderByExpression> orderByExpressions ) {
+        this.orderByExpressions = orderByExpressions;
+    }
+
+    public List<GroupByExpression> getGroupByExpressions() {
+        return groupByExpressions;
+    }
+
+    public void setGroupByExpressions( List<GroupByExpression> groupByExpressions ) {
+        this.groupByExpressions = groupByExpressions;
+    }
+
+    public Map<String, Object> getVariables() {
+        return variables;
+    }
+
+    public void setVariables( Map<String, Object> variables ) {
+        this.variables = variables;
     }
 }

@@ -1,8 +1,5 @@
 package org.adaptms.hqlbuilder.builder;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.adaptms.hqlbuilder.expression.join.JoinType;
 import org.adaptms.hqlbuilder.expression.order.QueryOrderDirection;
 import org.junit.jupiter.api.Test;
@@ -124,7 +121,6 @@ class HQLBuilderTest {
     }
 
     @Entity
-    @NoArgsConstructor
     public static class TestEntity {
 
         public static DSL root() { return new DSL( null ); }
@@ -138,14 +134,39 @@ class HQLBuilderTest {
             public AnotherTestEntity.DSL reference() { return AnotherTestEntity.alias( step( "reference" ) ); }
         }
 
-        @Getter @Setter private String fieldOne;
-        @Getter @Setter private Integer fieldTwo;
-        @Getter @Setter private AnotherTestEntity reference;
+        private String fieldOne;
+        private Integer fieldTwo;
+        private AnotherTestEntity reference;
 
+        public TestEntity() {
+        }
+
+        public String getFieldOne() {
+            return fieldOne;
+        }
+
+        public void setFieldOne( String fieldOne ) {
+            this.fieldOne = fieldOne;
+        }
+
+        public Integer getFieldTwo() {
+            return fieldTwo;
+        }
+
+        public void setFieldTwo( Integer fieldTwo ) {
+            this.fieldTwo = fieldTwo;
+        }
+
+        public AnotherTestEntity getReference() {
+            return reference;
+        }
+
+        public void setReference( AnotherTestEntity reference ) {
+            this.reference = reference;
+        }
     }
 
     @Entity
-    @NoArgsConstructor
     public static class AnotherTestEntity {
 
         public static DSL root() { return new DSL( null ); }
@@ -158,8 +179,26 @@ class HQLBuilderTest {
             public EntityPath another() { return addToPrevious( "another" ); }
         }
 
-        @Getter @Setter private boolean one;
-        @Getter @Setter private String another;
+        public AnotherTestEntity() {
+        }
 
+        private boolean one;
+        private String another;
+
+        public boolean isOne() {
+            return one;
+        }
+
+        public void setOne( boolean one ) {
+            this.one = one;
+        }
+
+        public String getAnother() {
+            return another;
+        }
+
+        public void setAnother( String another ) {
+            this.another = another;
+        }
     }
 }
