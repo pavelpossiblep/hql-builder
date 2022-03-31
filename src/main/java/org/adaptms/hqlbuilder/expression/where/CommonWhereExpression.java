@@ -44,6 +44,10 @@ public class CommonWhereExpression extends AbstractExpression {
         if ( input instanceof EntityPath ) {
             return ( ( EntityPath ) input ).getPath();
         } else if ( input instanceof IBuildable ) {
+            if ( input instanceof HQLBuilder ) {
+                HQLBuilder incomingBuilder = ( HQLBuilder ) input;
+                builder.getVariables().putAll( incomingBuilder.getVariables() );
+            }
             return "(" + ( ( IBuildable ) input ).build() + ")";
         } else if ( input.getClass().isArray() || Collection.class.isAssignableFrom( input.getClass() ) ) {
             return "(:" + builder.addVariable( input ) + ")";
