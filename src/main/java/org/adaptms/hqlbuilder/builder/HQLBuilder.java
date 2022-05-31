@@ -66,7 +66,7 @@ public class HQLBuilder implements IBuildable {
         this.rootEntityAlias = rootEntityAlias;
         this.mode = mode;
 
-        if ( !this.mode.isNeedsAlias() ) internalUUID = UUID.randomUUID().toString();
+        if ( !this.mode.isNeedsAlias() ) internalUUID = UUID.randomUUID().toString().replaceAll( "-", "_" );
     }
 
     /**
@@ -285,6 +285,10 @@ public class HQLBuilder implements IBuildable {
      */
     public void clearColumns() {
         columns = null;
+    }
+
+    public void clearOrder() {
+        orderByExpressions = null;
     }
 
     public static HQLBuilder select( Class<?> rootEntityClass, String rootEntityAlias ) {
